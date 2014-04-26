@@ -148,6 +148,10 @@ module Axiom
           fail ImmutableRelationError, 'deleting from a limit is impossible'
         end
 
+        def to_ast
+          s(:limit, operand.to_ast, limit)
+        end
+
         module Methods
 
           # Default block used in #one
@@ -231,10 +235,6 @@ module Axiom
             assert_no_more_than_one_tuple(tuples.size)
             tuples.first or block.yield or
               fail NoTuplesError, 'one tuple expected, but was an empty set'
-          end
-
-          def to_ast
-            s(:limit, operand.to_ast, limit)
           end
 
         private

@@ -2,7 +2,7 @@ require "spec_helper"
 
 describe Relation::Operation::Limit do
   subject(:limit) do
-    Relation::Operation::Limit.new(relation, 3)
+    relation.take(3)
   end
 
   let(:relation) do
