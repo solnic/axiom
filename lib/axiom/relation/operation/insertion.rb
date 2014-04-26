@@ -19,6 +19,10 @@ module Axiom
           @relation = Algebra::Union.new(*args)
         end
 
+        def to_ast
+          s(:insert, @relation.to_ast)
+        end
+
         module Methods
 
           # Return a relation that represents an insertion into a relation

@@ -111,6 +111,10 @@ module Axiom
         tuples.size
       end
 
+      def to_ast
+        s(:materialized, header.to_ast, tuples)
+      end
+
     end # class Materialized
   end # class Relation
 end # module Axiom
