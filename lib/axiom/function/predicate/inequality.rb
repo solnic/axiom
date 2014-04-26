@@ -59,6 +59,10 @@ module Axiom
           left != right
         end
 
+        def to_ast
+          s(:ne, left.to_ast, right)
+        end
+
         module Methods
 
           # Compare the left to see if it is not equal to the right

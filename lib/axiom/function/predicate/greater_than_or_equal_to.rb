@@ -44,6 +44,10 @@ module Axiom
           LessThanOrEqualTo
         end
 
+        def to_ast
+          s(:gte, left.to_ast, right)
+        end
+
         module Methods
 
           # Compare the left to see if it is greater than or equal to the right

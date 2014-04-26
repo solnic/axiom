@@ -44,6 +44,10 @@ module Axiom
           self
         end
 
+        def to_ast
+          s(:eq, left.to_ast, right)
+        end
+
         module Methods
 
           # Compare the left to see if it is equal to the right

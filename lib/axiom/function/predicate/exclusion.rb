@@ -37,6 +37,10 @@ module Axiom
           Inclusion
         end
 
+        def to_ast
+          s(:ex, left.to_ast, right)
+        end
+
         module Methods
 
           # Compare the left to see if it is excluded from the right
