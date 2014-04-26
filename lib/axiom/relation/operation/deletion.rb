@@ -19,6 +19,10 @@ module Axiom
           @relation = Algebra::Difference.new(*args)
         end
 
+        def to_ast
+          s(:delete, @relation.to_ast)
+        end
+
         module Methods
 
           # Return a relation that represents a deletion from a relation

@@ -61,6 +61,10 @@ module Axiom
         left.delete(coerce(other).difference(right)).difference(right)
       end
 
+      def to_ast
+        s(:difference, left.to_ast, right.to_ast)
+      end
+
       module Methods
         extend Aliasable
 

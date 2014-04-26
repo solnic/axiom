@@ -16,7 +16,7 @@ describe Algebra::Union do
       s(:union, left.to_ast, right.to_ast)
     end
 
-    it 'returns an ast node representing the relation' do
+    it 'returns an ast node representing union operation' do
       expect(union.to_ast).to eql(ast)
     end
   end
