@@ -233,6 +233,10 @@ module Axiom
               fail NoTuplesError, 'one tuple expected, but was an empty set'
           end
 
+          def to_ast
+            s(:limit, operand.to_ast, limit)
+          end
+
         private
 
           # Assert no more than one tuple is returned
