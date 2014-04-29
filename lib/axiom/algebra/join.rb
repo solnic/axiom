@@ -83,6 +83,10 @@ module Axiom
         delete_left(other).join(delete_right(other))
       end
 
+      def to_ast
+        s(:join, left.to_ast, right.to_ast)
+      end
+
     private
 
       # Build an index using every tuple in the right relation

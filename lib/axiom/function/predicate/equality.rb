@@ -45,7 +45,7 @@ module Axiom
         end
 
         def to_ast
-          s(:eq, left.to_ast, right)
+          s(:eq, left.to_ast, right.respond_to?(:to_ast) ? right.to_ast : right)
         end
 
         module Methods
