@@ -14,6 +14,36 @@ module Axiom
       # @api private
       attr_reader :join_header
 
+      class Inner < Join
+        attr_reader :join_keys
+
+        def initialize(left, right, join_keys = {})
+          super(left, right)
+          @join_keys = join_keys
+        end
+
+        def each
+          return to_enum unless block_given?
+
+          index_left = left.each_with_object({}) { |t, o| o[t.to_hash.values_at(*join_keys.keys)] = t }
+          index_right = right.each_with_object({}) { |t, o| o[t.to_hash.values_at(*join_keys.values)] = t }
+
+          index_left.each do |key, tuple_left|
+            tuple_right = index_right[key]
+            yield tuple_left.join(header, tuple_right) if tuple_right
+          end
+
+          self
+        end
+
+        def to_ast
+          keys = join_keys.map { |l_key, r_key|
+            s(:eq, left.header[l_key], right.header[r_key])
+          }
+          super.append(s(:keys, *keys))
+        end
+      end
+
       # Initialize a Join
       #
       # @param [Relation] _left
@@ -22,11 +52,10 @@ module Axiom
       # @return [undefined]
       #
       # @api private
-      def initialize(_left, _right)
+      def initialize(left, right)
         super
-        right_header     = right.header
-        @join_header     = left.header  & right_header
-        @disjoint_header = right_header - join_header
+        @join_header     = left.header & right.header
+        @disjoint_header = right.header - join_header
       end
 
       # Iterate over each tuple in the set
@@ -170,8 +199,21 @@ module Axiom
         # @return [Join, Restriction]
         #
         # @api public
-        def join(other, &block)
-          relation = Join.new(self, other)
+        def join(other, predicates = {}, &block)
+          relation =
+            if predicates.any?
+              Join::Inner.new(self, other, predicates)
+            else
+              Join.new(self, other)
+            end
+
+          relation = relation.restrict(&block) if block
+          relation
+        end
+
+        # @api public
+        def inner_join(other, join_keys, &block)
+          relation = Join::Inner.new(self, other, join_keys)
           relation = relation.restrict(&block) if block
           relation
         end
