@@ -89,6 +89,11 @@ module Axiom
         operand.delete(other.rename(aliases.inverse)).rename(aliases)
       end
 
+      def to_ast
+        aliases_ast = aliases.map { |old, new| s(:alias, operand.header[old].to_ast, header[new].to_ast) }
+        s(:rename, operand.to_ast, s(:aliases, *aliases_ast))
+      end
+
       module Methods
 
         # Return a relation with the header renamed

@@ -14,35 +14,7 @@ module Axiom
       # @api private
       attr_reader :join_header
 
-      class Inner < Join
-        attr_reader :join_keys
-
-        def initialize(left, right, join_keys = {})
-          super(left, right)
-          @join_keys = join_keys
-        end
-
-        def each
-          return to_enum unless block_given?
-
-          index_left = left.each_with_object({}) { |t, o| o[t.to_hash.values_at(*join_keys.keys)] = t }
-          index_right = right.each_with_object({}) { |t, o| o[t.to_hash.values_at(*join_keys.values)] = t }
-
-          index_left.each do |key, tuple_left|
-            tuple_right = index_right[key]
-            yield tuple_left.join(header, tuple_right) if tuple_right
-          end
-
-          self
-        end
-
-        def to_ast
-          keys = join_keys.map { |l_key, r_key|
-            s(:eq, left.header[l_key], right.header[r_key])
-          }
-          super.append(s(:keys, *keys))
-        end
-      end
+      attr_reader :key_predicates
 
       # Initialize a Join
       #
@@ -52,8 +24,13 @@ module Axiom
       # @return [undefined]
       #
       # @api private
-      def initialize(left, right)
-        super
+      def initialize(left, right, key_predicates = {})
+        @key_predicates = key_predicates
+
+        left = left.rename(key_predicates) if key_predicates.any?
+
+        super(left, right)
+
         @join_header     = left.header & right.header
         @disjoint_header = right.header - join_header
       end
@@ -113,7 +90,14 @@ module Axiom
       end
 
       def to_ast
-        s(:join, left.to_ast, right.to_ast)
+        ast = s(:join, left.to_ast, right.to_ast)
+
+        if key_predicates.any?
+          keys = key_predicates.map { |l_key, r_key| s(:eq, left.operand.header[l_key].to_ast, right.header[r_key].to_ast) }
+          ast = ast.append(s(:keys, *keys))
+        end
+
+        ast
       end
 
     private
@@ -200,20 +184,7 @@ module Axiom
         #
         # @api public
         def join(other, predicates = {}, &block)
-          relation =
-            if predicates.any?
-              Join::Inner.new(self, other, predicates)
-            else
-              Join.new(self, other)
-            end
-
-          relation = relation.restrict(&block) if block
-          relation
-        end
-
-        # @api public
-        def inner_join(other, join_keys, &block)
-          relation = Join::Inner.new(self, other, join_keys)
+          relation = Join.new(self, other, predicates)
           relation = relation.restrict(&block) if block
           relation
         end

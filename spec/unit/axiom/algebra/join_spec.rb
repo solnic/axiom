@@ -36,5 +36,21 @@ describe Algebra::Join do
         expect(join.to_ast).to eql(ast)
       end
     end
+
+    context 'with join key predicates' do
+      subject(:join) { left.join(right, :id => :user_id) }
+
+      let(:ast) do
+        s(:join,
+          join.left.to_ast,
+          join.right.to_ast,
+          s(:keys, s(:eq, left.header[:id].to_ast, right.header[:user_id].to_ast))
+         )
+      end
+
+      it 'returns an ast node representing the join with predicate keys' do
+        expect(join.to_ast).to eql(ast)
+      end
+    end
   end
 end
