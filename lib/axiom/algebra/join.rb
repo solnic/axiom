@@ -93,8 +93,8 @@ module Axiom
         ast = s(:join, left.to_ast, right.to_ast)
 
         if key_predicates.any?
-          keys = key_predicates.map { |l_key, r_key| s(:eq, left.operand.header[l_key].to_ast, right.header[r_key].to_ast) }
-          ast = ast.append(s(:keys, *keys))
+          keys = key_predicates.map { |l_key, r_key| s(:join_key, left.operand.header[l_key].to_ast, right.header[r_key].to_ast) }
+          ast = ast.append(s(:join_predicates, *keys))
         end
 
         ast

@@ -44,7 +44,9 @@ describe Algebra::Join do
         s(:join,
           join.left.to_ast,
           join.right.to_ast,
-          s(:keys, s(:eq, left.header[:id].to_ast, right.header[:user_id].to_ast))
+          s(:join_predicates,
+            s(:join_key, left.header[:id].to_ast, right.header[:user_id].to_ast)
+           )
          )
       end
 
