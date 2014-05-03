@@ -147,6 +147,10 @@ module Axiom
           fail ImmutableRelationError, 'deleting from an offset is impossible'
         end
 
+        def to_ast
+          s(:offset, operand.to_ast, offset)
+        end
+
         module Methods
 
           # Return a relation with n tuples

@@ -6,6 +6,7 @@ module Axiom
     # Abstract base class for logical predicates
     class Predicate < Function
       include AbstractType,
+              AST::Sexp,
               Binary::Invertible,
               Binary,
               Connective::Conjunction::Methods,

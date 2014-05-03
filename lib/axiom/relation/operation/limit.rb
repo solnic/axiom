@@ -148,6 +148,10 @@ module Axiom
           fail ImmutableRelationError, 'deleting from a limit is impossible'
         end
 
+        def to_ast
+          s(:limit, operand.to_ast, limit)
+        end
+
         module Methods
 
           # Default block used in #one

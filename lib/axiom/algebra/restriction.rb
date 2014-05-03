@@ -88,6 +88,10 @@ module Axiom
         operand.delete(other.restrict(predicate)).restrict(predicate)
       end
 
+      def to_ast
+        s(:restrict, operand.to_ast, predicate.to_ast)
+      end
+
       module Methods
 
         # Return a relation with restricted tuples

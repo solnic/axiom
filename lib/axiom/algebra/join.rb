@@ -14,6 +14,8 @@ module Axiom
       # @api private
       attr_reader :join_header
 
+      attr_reader :key_predicates
+
       # Initialize a Join
       #
       # @param [Relation] _left
@@ -22,11 +24,15 @@ module Axiom
       # @return [undefined]
       #
       # @api private
-      def initialize(_left, _right)
-        super
-        right_header     = right.header
-        @join_header     = left.header  & right_header
-        @disjoint_header = right_header - join_header
+      def initialize(left, right, key_predicates = {})
+        @key_predicates = key_predicates
+
+        left = left.rename(key_predicates) if key_predicates.any?
+
+        super(left, right)
+
+        @join_header     = left.header & right.header
+        @disjoint_header = right.header - join_header
       end
 
       # Iterate over each tuple in the set
@@ -81,6 +87,17 @@ module Axiom
       def delete(other)
         other = coerce(other)
         delete_left(other).join(delete_right(other))
+      end
+
+      def to_ast
+        ast = s(:join, left.to_ast, right.to_ast)
+
+        if key_predicates.any?
+          keys = key_predicates.map { |l_key, r_key| s(:join_key, left.operand.header[l_key].to_ast, right.header[r_key].to_ast) }
+          ast = ast.append(s(:join_predicates, *keys))
+        end
+
+        ast
       end
 
     private
@@ -166,8 +183,8 @@ module Axiom
         # @return [Join, Restriction]
         #
         # @api public
-        def join(other, &block)
-          relation = Join.new(self, other)
+        def join(other, predicates = {}, &block)
+          relation = Join.new(self, other, predicates)
           relation = relation.restrict(&block) if block
           relation
         end

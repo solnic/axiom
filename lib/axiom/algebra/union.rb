@@ -57,6 +57,10 @@ module Axiom
         left.delete(other).union(right.delete(other))
       end
 
+      def to_ast
+        s(:union, left.to_ast, right.to_ast)
+      end
+
       module Methods
         extend Aliasable
 
